@@ -1,25 +1,72 @@
 package com.example.travel.controller;
-import com.example.travel.dto.*; import com.example.travel.model.Destino; import com.example.travel.service.DestinoService;
-import org.springframework.http.ResponseEntity; import org.springframework.web.bind.annotation.*; import java.net.URI; import java.util.List;
-@RestController @RequestMapping("/api/destinos")
+
+import com.example.travel.dto.AvaliacaoRequest;
+import com.example.travel.dto.CreateDestinoRequest;
+import com.example.travel.dto.UpdateDestinoRequest;
+import com.example.travel.model.Destino;
+import com.example.travel.service.DestinoService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/destinos")
 public class DestinoController {
+
     private final DestinoService service;
-    public DestinoController(DestinoService s){this.service=s;}
+
+    public DestinoController(DestinoService service) {
+        this.service = service;
+    }
+
     @PostMapping
-    public ResponseEntity<Destino> criar(@RequestBody CreateDestinoRequest r){
-        Destino d=service.criarDestino(r.getNome(),r.getLocalizacao(),r.getDescricao(),r.getPreco());
-        return ResponseEntity.created(URI.create("/api/destinos/"+d.getId())).body(d);}
-    @GetMapping public List<Destino> listar(){return service.listarTodos();}
+    public ResponseEntity<Destino> criar(@RequestBody CreateDestinoRequest request) {
+        Destino d = service.criarDestino(
+                request.getNome(),
+                request.getLocalizacao(),
+                request.getDescricao(),
+                request.getPreco()
+        );
+        return ResponseEntity.created(URI.create("/api/destinos/" + d.getId())).body(d);
+    }
+
+    @GetMapping
+    public List<Destino> listar() {
+        return service.listarTodos();
+    }
+
     @GetMapping("/search")
-    public List<Destino> pesq(@RequestParam(required=false)String n,@RequestParam(required=false)String l){
-        return service.pesquisar(n,l);}
-    @GetMapping("/{id}") public Destino det(@PathVariable Long id){return service.buscarPorId(id);}
+    public List<Destino> pesquisar(@RequestParam(required = false) String n,
+                                   @RequestParam(required = false) String l) {
+        return service.pesquisar(n, l);
+    }
+
+    @GetMapping("/{id}")
+    public Destino detalhes(@PathVariable Long id) {
+        return service.buscarPorId(id);
+    }
+
     @PutMapping("/{id}")
-    public Destino atualizar(@PathVariable Long id,@RequestBody UpdateDestinoRequest r){
-        return service.atualizar(id,r.getNome(),r.getLocalizacao(),r.getDescricao(),r.getPreco());}
+    public Destino atualizar(@PathVariable Long id, @RequestBody UpdateDestinoRequest request) {
+        return service.atualizar(
+                id,
+                request.getNome(),
+                request.getLocalizacao(),
+                request.getDescricao(),
+                request.getPreco()
+        );
+    }
+
     @PatchMapping("/{id}/avaliacao")
-    public Destino aval(@PathVariable Long id,@RequestBody AvaliacaoRequest r){
-        return service.avaliar(id,r.getNota());}
+    public Destino avaliar(@PathVariable Long id, @RequestBody AvaliacaoRequest request) {
+        return service.avaliar(id, request.getNota());
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> del(@PathVariable Long id){service.deletar(id); return ResponseEntity.noContent().build();}
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
 }
